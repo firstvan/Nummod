@@ -37,45 +37,45 @@ void deleteVec(double ** A){
 }
 
 int matrixPLU(double *** A, int ** P,const int& size){
-    int k,i,j;
+    int k1,i1,j1;
     double temp;
 
-    for (i = 0; i < size; ++i)
+    for (i1 = 0; i1 < size; ++i1)
     {
-        (*P)[i] = i;
+       (*P)[i1] = i1;
     }
 
-    for (k = 0; k < size - 1; ++k)
+    for (k1 = 0; k1 < size - 1; ++k1)
     {
-        int maxRow = k;
+        int maxRow = k1;
 
-        for (i = k+1; i < size; ++i)
-            if(fabs((*A)[i][k]) > fabs((*A)[maxRow][k]))
-                maxRow = i;
+        for (i1 = k1+1; i1 < size; ++i1)
+            if(fabs((*A)[i1][k1]) > fabs((*A)[maxRow][k1]))
+                maxRow = i1;
 
-        if(maxRow != k){
-            for (i = 0; i < size; ++i)
+        if(maxRow != k1){
+            for (i1 = 0; i1 < size; ++i1)
             {
-                temp = (*A)[k][i];
-                (*A)[k][i] = (*A)[maxRow][i];
-                (*A)[maxRow][i] = temp;
+                temp = (*A)[k1][i1];
+                (*A)[k1][i1] = (*A)[maxRow][i1];
+                (*A)[maxRow][i1] = temp;
             }
 
-            int tempI = (*P)[k];
-            (*P)[k] = (*P)[maxRow];
+            int tempI = (*P)[k1];
+            (*P)[k1] = (*P)[maxRow];
             (*P)[maxRow] = tempI;
         }
 
-        if(fabs((*A)[k][k]) < 1e-15)
+        if(fabs((*A)[k1][k1]) < 1e-15)
             return 1;
 
-        for (i = k + 1; i < size; ++i)
+        for (i1 = k1 + 1; i1 < size; ++i1)
         {
-            (*A)[i][k] /= (*A)[k][k];
+            (*A)[i1][k1] /= (*A)[k1][k1];
 
-            for (j = k + 1; j < size; ++j)
+            for (j1 = k1 + 1; j1 < size; ++j1)
             {
-                (*A)[i][j] -= (*A)[i][k] * (*A)[k][j];
+                (*A)[i1][j1] -= (*A)[i1][k1]* (*A)[k1][j1];
             }
         }
 
@@ -83,7 +83,6 @@ int matrixPLU(double *** A, int ** P,const int& size){
 
     if(fabs((*A)[size-1][size-1]) < 1e-15)
         return 1;
-
 
     return 0;
 }
@@ -102,7 +101,7 @@ void matrixVecMultiply(double ** T, double ** Y, double *** M, const int& size){
 }
 
 double innerProduct(double ** X, double ** Y,const int& size){
-    double re = 0;
+    double re = 0.0;
     int i;
 
     for (i = 0; i < size; ++i)
@@ -139,10 +138,10 @@ int main(){
             }
         }
 
-        int m;              //taskNumber
-        scanf("%d", &m);
+        int m1;              //taskNumber
+        scanf("%d", &m1);
 
-        for (j = 0; j < m; ++j)
+        for (j = 0; j < m1; ++j)
         {
             double c;        //shifting
             scanf("%lf", &c);
@@ -161,19 +160,25 @@ int main(){
                 scanf("%lf", &y0[k]);
             }
 
-            int * p;
-            p = new int[nMatrixM];
 
             for (k = 0; k < nMatrixM; ++k)
             {
                 matrix[k][k] -= c;
             }
 
-            int singular = matrixPLU(&matrix, &p, nMatrixM);
+            int * p0 = new int[nMatrixM];
+
+
+            for (k = 0; k < nMatrixM; ++k)
+            {
+                p0[k] = 0;
+            }
+
+            int singular = matrixPLU(&matrix, &p0, nMatrixM);
 
             if(singular){
                 printf("%.8lf\n", c);
-                delete[] p;
+                delete[] p0;
                 delete[] y0;
                 continue;
             }
@@ -195,7 +200,7 @@ int main(){
             if (fabs(norma) < 1e-15)
             {
                 printf("kezdovektor\n");
-                delete[] p;
+                delete[] p0;
                 delete[] y0;
                 continue;
             }
@@ -208,7 +213,7 @@ int main(){
                 y[k] = y0[k] / norma;
             }
 
-            double lambda, lambda1;
+            double lambda = 0.0, lambda1 = 0.0;
             double * tempVec;
             initVec(&tempVec, nMatrixM);
             matrixVecMultiply(&tempVec, &y, &matrix, nMatrixM);
@@ -222,20 +227,16 @@ int main(){
                 int m,n;
                 for (m = 0; m < nMatrixM; ++m)
                 {
-                    double tempD = y[m];
-                    y[m] = y[p[m]];
-                    y[p[m]] = tempD;
+                    y0[m] = y[p0[m]];
                 }
 
                 for (m = 0; m < nMatrixM; ++m)
                 {
-                    double tempD = 0;
                     for (n = 0; n < m; ++n)
                     {
-                        tempD += matrix[m][n] * y[n];
+                        y0[m] -= matrix[m][n] * y0[n];
                     }
 
-                    y[m] -= tempD;
                 }
 
                 for (m = nMatrixM - 1; m >= 0; --m)
@@ -246,7 +247,7 @@ int main(){
                         tempD += matrix[m][n] * y0[n];
                     }
 
-                    y0[m] = y[m] - tempD;
+                    y0[m] = y0[m] - tempD;
                     if(fabs(y0[m]) > 1e-15)
                         y0[m] /= matrix[m][m];
                 }
@@ -266,7 +267,7 @@ int main(){
                 
                 double lambdaDisc = lambda1-lambda;
                 double cond = epsilon * (1+fabs(lambda1));
-
+//                printf("%.8lf, %.8lf\n", fabs(lambdaDisc), cond);
                 if (fabs(lambdaDisc) <= cond) 
                 {
                     break;
@@ -275,7 +276,7 @@ int main(){
                 lambda = lambda1;
 
             }
-
+            printf("%d, %d \n", l, maxit);
             if (l == maxit)
             {
                 printf("maxit\n");
@@ -286,12 +287,13 @@ int main(){
 
                 for (k = 0; k < nMatrixM; ++k)
                 {
-                    tempVec[k] -= lambda1 * tempVec[k];
+                    tempVec[k] -= lambda1;
                 }
 
                 if (innerProduct(&tempVec, &tempVec, nMatrixM) < epsilon)
                 {
                     printf("siker %lf ", lambda1);
+                    int m;
                     for (m = 0; m < nMatrixM; ++m)
                     {
                        printf("%lf ", tempVec[m]); 
@@ -310,7 +312,7 @@ int main(){
 
             delete[] tempVec;
             delete[] y;
-            delete[] p;
+            delete[] p0;
             delete[] y0;
         }
 
