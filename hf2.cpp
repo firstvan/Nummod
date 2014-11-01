@@ -7,7 +7,7 @@ void initMatrix(double *** A, const int & size){
     int j;
 
     //Matrix init
-    *A = new double*[size];
+    (*A) = new double*[size];
     for (j = 0; j < size; ++j)
     {
         (*A)[j] = new double[size];
@@ -29,11 +29,11 @@ void deleteMatrix(double *** A, const int &size){
 }
 
 void initVec(double ** A,const int& size){
-    *A = new double[size];
+    (*A) = new double[size];
 }
 
 void deleteVec(double ** A){
-    delete[] *A;
+    delete[] (*A);
 }
 
 int matrixPLU(double *** A, int ** P,const int& size){
@@ -81,8 +81,9 @@ int matrixPLU(double *** A, int ** P,const int& size){
 
     }
 
-    if(fabs((*A)[size-1][size-1]) < 0e-15)
+    if(fabs((*A)[size-1][size-1]) < 1e-15)
         return 1;
+
 
     return 0;
 }
@@ -163,6 +164,11 @@ int main(){
             int * p;
             p = new int[nMatrixM];
 
+            for (k = 0; k < nMatrixM; ++k)
+            {
+                matrix[k][k] -= c;
+            }
+
             int singular = matrixPLU(&matrix, &p, nMatrixM);
 
             if(singular){
@@ -172,10 +178,6 @@ int main(){
                 continue;
             }
 
-            for (k = 0; k < nMatrixM; ++k)
-            {
-                matrix[k][k] -= c;
-            }
 
             double norma = 0.0;
 
@@ -230,10 +232,10 @@ int main(){
                     double tempD = 0;
                     for (n = 0; n < m; ++n)
                     {
-                        tempD += matrix[i][j] * y[j];
+                        tempD += matrix[m][n] * y[n];
                     }
 
-                    y[j] -= tempD;
+                    y[m] -= tempD;
                 }
 
                 for (m = nMatrixM - 1; m >= 0; --m)
@@ -261,8 +263,11 @@ int main(){
                 matrixVecMultiply(&tempVec, &y, &matrix, nMatrixM);
 
                 lambda1 = innerProduct(&tempVec, &y, nMatrixM);
+                
+                double lambdaDisc = lambda1-lambda;
+                double cond = epsilon * (1+fabs(lambda1));
 
-                if (fabs(lambda1 - lambda) <= epsilon * (1 + lambda1))
+                if (fabs(lambdaDisc) <= cond) 
                 {
                     break;
                 }
