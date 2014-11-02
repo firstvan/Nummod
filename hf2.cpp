@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 
-
+//init matrix in dynamic memory
 void initMatrix(double *** A, const int & size){
 
     int j;
@@ -15,6 +15,7 @@ void initMatrix(double *** A, const int & size){
 
 }
 
+//delete matrix from dynamic memory
 void deleteMatrix(double *** A, const int &size){
 
     int j;
@@ -28,18 +29,22 @@ void deleteMatrix(double *** A, const int &size){
     delete[] (*A);
 }
 
+//init array in dynamic memory
 void initVec(double ** A,const int& size){
     (*A) = new double[size];
 }
 
+//delete array from dynamic memory
 void deleteVec(double ** A){
     delete[] (*A);
 }
 
+// do the PLU
 int matrixPLU(double *** A, int ** P,const int& size){
     int k1,i1,j1;
     double temp;
 
+    //P init
     for (i1 = 0; i1 < size; ++i1)
     {
         (*P)[i1] = i1;
@@ -49,10 +54,12 @@ int matrixPLU(double *** A, int ** P,const int& size){
     {
         int maxRow = k1;
 
+        //which is the biggest value in column
         for (i1 = k1+1; i1 < size; ++i1)
             if(fabs((*A)[i1][k1]) > fabs((*A)[maxRow][k1]))
                 maxRow = i1;
 
+        //swipe rows
         if(maxRow != k1){
             for (i1 = 0; i1 < size; ++i1)
             {
@@ -61,14 +68,17 @@ int matrixPLU(double *** A, int ** P,const int& size){
                 (*A)[maxRow][i1] = temp;
             }
 
-            int intTemp = (*P)[k1]; 
+            //save swaps
+            int intTemp = (*P)[k1];
             (*P)[k1] = (*P)[maxRow];
             (*P)[maxRow] = intTemp;
         }
 
+        //singular?
         if(fabs((*A)[k1][k1]) < 1e-15)
             return 1;
 
+        //do the LU
         for (i1 = k1 + 1; i1 < size; ++i1)
         {
             (*A)[i1][k1] /= (*A)[k1][k1];
@@ -81,12 +91,14 @@ int matrixPLU(double *** A, int ** P,const int& size){
 
     }
 
+    //singular?
     if(fabs((*A)[size-1][size-1]) < 1e-15)
         return 1;
 
     return 0;
 }
 
+//simple matrix vector multiply
 void matrixVecMultiply(double ** T, double ** Y, double *** M, const int& size){
     int i,j;
 
@@ -100,6 +112,7 @@ void matrixVecMultiply(double ** T, double ** Y, double *** M, const int& size){
     }
 }
 
+//inner product
 double innerProduct(double ** X, double ** Y,const int& size){
     double re = 0.0;
     int i;
@@ -115,6 +128,7 @@ double innerProduct(double ** X, double ** Y,const int& size){
 int main(){
     int N;
 
+    // matrix numbers
     scanf("%d", &N);
 
     int i;
@@ -143,7 +157,7 @@ int main(){
 
         for (j = 0; j < m1; ++j)
         {
-
+            //matrix for plu, and it is important to not change the base matrix
             double ** matrix;
             initMatrix(&matrix, nMatrixM);
             int miter;
@@ -161,9 +175,10 @@ int main(){
             int maxit;       //maximal of iteration
             scanf("%d", &maxit);
 
-            double epsilon;
+            double epsilon;  //convergence criteria
             scanf("%lf", &epsilon);
 
+            //y vector
             double * y0;
             initVec(&y0, nMatrixM);
 
@@ -172,14 +187,14 @@ int main(){
                 scanf("%lf", &y0[k]);
             }
 
-
+            //sub shift from matrix
             for (k = 0; k < nMatrixM; ++k)
             {
                 matrix[k][k] -= c;
             }
 
+            //p vector to PLU
             int * p0 = new int[nMatrixM];
-
 
             for (k = 0; k < nMatrixM; ++k)
             {
@@ -188,7 +203,7 @@ int main(){
 
             int singular = matrixPLU(&matrix, &p0, nMatrixM);
 
-            //a felbontás tökéletesen működik
+            //if the matrix singular, "singular" is 1
             if(singular){
                 printf("%.8lf \n", c);
                 delete[] p0;
@@ -197,7 +212,7 @@ int main(){
                 continue;
             }
 
-
+            //norma
             double norma = innerProduct(&y0, &y0, nMatrixM);
 
             if (fabs(norma) > 1e-15)
@@ -205,7 +220,7 @@ int main(){
                 norma = sqrt(norma);
             }
 
-
+            // norma is null y0 was 0
             if (fabs(norma) < 1e-15)
             {
                 printf("kezdovektor\n");
@@ -215,39 +230,36 @@ int main(){
                 continue;
             }
 
+            //temp array
             double * y;
             initVec(&y, nMatrixM);
 
+            // norma
             for (k = 0; k < nMatrixM; ++k)
             {
                 y[k] = y0[k] / norma;
             }
-                
-//            for (k = 0; k < nMatrixM; ++k)
-//            {
-//                y0[k] = y[p0[k]];
-//            }
 
             double lambda = 0.0;
 
             double * tempVec;
             initVec(&tempVec, nMatrixM);
-           
+
             matrixVecMultiply(&tempVec, &y, &matrix1, nMatrixM);
-
-
-
             lambda = innerProduct(&tempVec, &y, nMatrixM);
 
             int l;
             for (l = 0; l < maxit; ++l)
             {
                 int m,n;
+
+                //swipe y0 rows with plu
                 for (m = 0; m < nMatrixM; ++m)
                 {
                     y0[m] = y[p0[m]];
                 }
 
+                //Lz = y0
                 for (m = 0; m < nMatrixM; ++m)
                 {
                     double tempD = 0.0;
@@ -260,6 +272,7 @@ int main(){
 
                 }
 
+                //Uy0 =y
                 for (m = nMatrixM - 1; m >= 0; --m)
                 {
                     double tempD = 0.0;
@@ -279,17 +292,15 @@ int main(){
                 for (m = 0; m < nMatrixM; ++m)
                 {
                     y[m] = y0[m] / norma;
-//                    printf("....%lf....\n", y[m]);
                 }
 
                 matrixVecMultiply(&tempVec, &y, &matrix1, nMatrixM);
-                double lambda1 = innerProduct(&tempVec, &y, nMatrixM);                    
+                double lambda1 = innerProduct(&tempVec, &y, nMatrixM);
 
                 double lambdaDisc = lambda1 - lambda;
                 double cond = epsilon * (1+fabs(lambda1));
-//                printf("%.8lf, %.8lf\n", fabs(lambdaDisc), cond);
 
-                if (fabs(lambdaDisc) <= cond) 
+                if (fabs(lambdaDisc) <= cond)
                 {
                     lambda = lambda1;
                     break;
@@ -298,8 +309,7 @@ int main(){
                 lambda = lambda1;
 
             }
-           //idáig jó :D 
-            
+
             if (l == maxit)
             {
                 printf("maxit\n");
@@ -311,8 +321,8 @@ int main(){
                 {
                     tempVec[k] -= lambda * y[k];
                 }
-                
-                double inner = innerProduct(&tempVec, &tempVec, nMatrixM); 
+
+                double inner = innerProduct(&tempVec, &tempVec, nMatrixM);
 
                 if (inner <= epsilon)
                 {
@@ -320,7 +330,7 @@ int main(){
                     int m;
                     for (m = 0; m < nMatrixM; ++m)
                     {
-                        printf("%.8lf ", y[m]); 
+                        printf("%.8lf ", y[m]);
                     }
 
                     printf("%.8lf ", inner);
@@ -332,7 +342,7 @@ int main(){
                     int m;
                     for (m = 0; m < nMatrixM; ++m)
                     {
-                        printf("%.8lf ", y[m]); 
+                        printf("%.8lf ", y[m]);
                     }
 
                     printf("%.8lf ", inner);
