@@ -190,7 +190,7 @@ int main(){
 
             //a felbontás tökéletesen működik
             if(singular){
-                printf("%.8lf\n", c);
+                printf("%.8lf \n", c);
                 delete[] p0;
                 delete[] y0;
                 deleteMatrix(&matrix, nMatrixM);
@@ -320,15 +320,23 @@ int main(){
                     int m;
                     for (m = 0; m < nMatrixM; ++m)
                     {
-                        printf("%.8lf ", tempVec[m]); 
+                        printf("%.8lf ", y[m]); 
                     }
 
-                    printf("%.8lf ", innerProduct(&tempVec, &tempVec, nMatrixM));
+                    printf("%.8lf ", inner);
                     printf("%d\n", l);
-                }i
+                }
                 else
                 {
-                    printf("Sikertelen\n");
+                    printf("sikertelen %lf ", lambda);
+                    int m;
+                    for (m = 0; m < nMatrixM; ++m)
+                    {
+                        printf("%.8lf ", y[m]); 
+                    }
+
+                    printf("%.8lf ", inner);
+                    printf("%d\n", l);
                 }
             }
 
