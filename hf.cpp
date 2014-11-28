@@ -2,12 +2,14 @@
 #include <math.h>
 
 
-int main(int argc, char ** argv){
+int main(int argc, char** argv)
+{
     int taskNumber;
     scanf("%d", &taskNumber);
 
     int taskProcess;
-    for(taskProcess = 0; taskProcess < taskNumber; taskProcess++){
+    for(taskProcess = 0; taskProcess < taskNumber; taskProcess++)
+    {
         int csere = 0;
         int sing = 0;
         double temp;
@@ -29,23 +31,29 @@ int main(int argc, char ** argv){
 
         double p[dim];
 
-        for(i = 0; i < dim; i++){
+        for(i = 0; i < dim; i++)
+        {
             p[i] = i;
         }
 
         int k;
 
-        for(k = 0; k < dim - 1; k++){
+        for(k = 0; k < dim - 1; k++)
+        {
 
             int maxRow = k;
-            for(i = k+1; i < dim; i++){
-                if(fabs(matrix[i][k]) > fabs(matrix[maxRow][k])){
+            for(i = k+1; i < dim; i++)
+            {
+                if(fabs(matrix[i][k]) > fabs(matrix[maxRow][k]))
+                {
                     maxRow = i;
                 }
-            }     //jó       
+            }     //jó
 
-            if(maxRow != k){
-                for(i = 0; i < dim; i++){
+            if(maxRow != k)
+            {
+                for(i = 0; i < dim; i++)
+                {
                     temp = matrix[k][i];
                     matrix[k][i] = matrix[maxRow][i];
                     matrix[maxRow][i] = temp;
@@ -62,11 +70,13 @@ int main(int argc, char ** argv){
                 sing = 1;
 
 
-            for(i = k+1; i < dim; i++){
+            for(i = k+1; i < dim; i++)
+            {
                 matrix[i][k] = matrix[i][k]/matrix[k][k];
 
-                for(j = k+1; j < dim; j++){
-                    matrix[i][j] = matrix[i][j] - (matrix[i][k] * matrix[k][j]);     
+                for(j = k+1; j < dim; j++)
+                {
+                    matrix[i][j] = matrix[i][j] - (matrix[i][k] * matrix[k][j]);
                 }
 
             }
@@ -74,11 +84,13 @@ int main(int argc, char ** argv){
 
         if(fabs(matrix[dim-1][dim-1]) < 1e-15)
             sing = 1;
-        else{
+        else
+        {
 
             double n_b[dim];
 
-            for(i = 0; i < dim; i++){
+            for(i = 0; i < dim; i++)
+            {
                 int intTemp = p[i];
                 n_b[i] = b[intTemp];
             }
@@ -86,15 +98,17 @@ int main(int argc, char ** argv){
             temp = 0;
 
             //b vektor már nem kell így felhasználom
-            for(i = 0; i < dim; i++){
-                temp = 0;  
+            for(i = 0; i < dim; i++)
+            {
+                temp = 0;
                 for(j = 0; j < i; j++)
-                    temp += (matrix[i][j] * b[j]);    
+                    temp += (matrix[i][j] * b[j]);
 
                 b[i] = n_b[i] - temp;
             }
 
-            for(i = dim - 1; i >= 0; i--){
+            for(i = dim - 1; i >= 0; i--)
+            {
                 temp = 0;
                 for(j = i+1; j < dim; j++)
                     temp += (matrix[i][j] * x[j]);
@@ -103,7 +117,7 @@ int main(int argc, char ** argv){
                 x[i] = (b[i] - temp);
                 if(fabs(x[i]) > 1e-15)
                     x[i] = x[i] / matrix[i][i];
-            }                     
+            }
         }
 
         if(sing == 1)
@@ -125,6 +139,6 @@ int main(int argc, char ** argv){
 
         }
 
-        printf("\n");   
+        printf("\n");
     }
 }
