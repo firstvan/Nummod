@@ -271,12 +271,17 @@ int main()
         bool kilep = false;
 
         int j;
-        for(j = 1; j < maxit; j++)
+        for(j = 0; j < maxit; j++)
         {
-            if(j != 1) // ez is utólag lett belerakva mármint a feltétel
+            if(j != 0) // ez is utólag lett belerakva mármint a feltétel
             {
                 f(sorszam, fx, xKezdo, vecSize);
+//                normaFK = normaV(fx, vecSize);
             }
+//            for(int j = 0; j < vecSize; j++)
+//            {
+//                printf("%lf ,", fx[j]);
+//            }
 
             double** jacobiMatrix;
             initMatrix(&jacobiMatrix, vecSize);
@@ -342,7 +347,7 @@ int main()
                 temp[m] /= jacobiMatrix[m][m];
             }
 
-//            normaFK = normaV(xKezdo, vecSize);
+            // normaFK = normaV(fx, vecSize);
             bool siker = false;
             int l;
             for (l = 0; l < 8; ++l)
@@ -400,7 +405,7 @@ int main()
                 delete[] fxT;
                 delete[] y;
             }
-            if(l == 8 && siker==true)
+            if(l == 8 && siker==false)
             {
                 printf("sikertelen ");
                 for (int m = 0; m < vecSize; ++m)
@@ -434,14 +439,14 @@ int main()
             }
 
 
-            if(normaFK <= epszilon * (1+normaF0)) //ha sok wa akkor kiszedni az =
+            if(normaFK < epszilon * (1+normaF0)) //ha sok wa akkor kiszedni az =
             {
                 printf("siker ");
                 for (int m = 0; m < vecSize; ++m)
                 {
                     printf("%.8lf ", xKezdo[m]);
                 }
-                printf("%.8lf %d", normaFK, j);
+                printf("%.8lf %d", normaFK, j+1);
                 printf("\n");
                 delete[] P;
                 delete[] temp;
